@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+temp
+.env
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+*.mp4
+*.mp3
+*.png
+!static/**/*.png

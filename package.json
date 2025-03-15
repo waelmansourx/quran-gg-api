@@ -1,0 +1,22 @@
+{
+    "name": "quran-api-js",
+    "version": "1.0.0",
+    "description": "Video generation API for Quran verses with audio and translations",
+    "main": "main.js",
+    "type": "module",
+    "scripts": {
+        "start": "node main.js",
+        "dev": "nodemon main.js",
+        "test": "node test-api.js"
+    },
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.400.0",
+        "canvas": "^2.11.2",
+        "dotenv": "^16.4.7",
+        "fluent-ffmpeg": "^2.1.2",
+        "nodemon": "^3.0.1"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
