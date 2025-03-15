@@ -27,20 +27,23 @@ RUN npm install
 # Copy application files
 COPY . .
 
-# Create temp directory for processing
-RUN mkdir -p temp && chmod 777 temp
+# Create directories for RunPod
+RUN mkdir -p temp /inputs /outputs && chmod 777 temp /inputs /outputs
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3000 8000
 
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
+ENV RUNPOD_WEBHOOK_GET_LOGS=true
+ENV RUNPOD_WEBHOOK_DOWNLOAD_OUTPUT=false
+ENV RUNPOD_HANDLER_PORT=8000
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:3000/ || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Command to run the application
-CMD ["npm", "start"]
+# Command to run the application (use RunPod handler in production)
+CMD ["npm", "run", "start:runpod"]
