@@ -559,7 +559,11 @@ async function handler( req, res ) {
                 endpoints: [
                     { method: 'GET', path: '/videos/:id' },
                     { method: 'POST', path: '/process' }
-                ]
+                ],
+                runpod: {
+                    info: 'For RunPod serverless, submit requests directly to the root endpoint',
+                    required_parameters: ['recitation_files', 'background', 'ayat']
+                }
             } ) );
             return;
         }
@@ -635,32 +639,26 @@ async function handler( req, res ) {
 export async function runpodHandler( event ) {
     const { input } = event;
 
-    // Handle different types of RunPod requests
+    // Handle video URL generation requests if specified
     if ( input.route === 'video' ) {
-        // Handle video URL generation requests
         return await getPresignedUrlForVideo( input.videoId, input.expirySeconds );
-    } else if ( input.route === 'process' ) {
-        // Handle processing requests
-        const { recitation_files, background, ayat } = input;
-
-        if ( !recitation_files || !background || !ayat ) {
-            return {
-                error: 'Missing required fields: recitation_files, background, or ayat'
-            };
-        }
-
+    }
+    // Process request directly at root route if it has the necessary parameters
+    else if ( input.recitation_files && input.background && input.ayat ) {
         try {
-            return await processVideoRequest( recitation_files, background, ayat );
+            return await processVideoRequest( input.recitation_files, input.background, input.ayat );
         } catch ( err ) {
             return {
                 error: err instanceof Error ? err.message : 'Error processing the request'
             };
         }
     }
-
-    return {
-        error: 'Unknown route or missing parameters'
-    };
+    // Fallback for unknown route or missing parameters
+    else {
+        return {
+            error: 'Missing required fields: recitation_files, background, or ayat'
+        };
+    }
 }
 
 // Always start the server when running as a standalone application (not imported)
@@ -671,7 +669,8 @@ if ( import.meta.url === `file://${ process.argv[1] }` ) {
         console.log( `Server is running on http://${ host }:${ port } in ${ process.env.NODE_ENV } mode` );
         console.log( `You can also access it at http://localhost:${ port }` );
         console.log( `GET /videos/:id - Get presigned URL for a video` );
-        console.log( `POST /process - Process recitation files` );
+        console.log( `POST /process - Process recitation files (HTTP server only)` );
+        console.log( `For RunPod: Submit requests directly to the root endpoint with recitation_files, background, and ayat parameters` );
     } );
 }
 
